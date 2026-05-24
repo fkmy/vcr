@@ -102,7 +102,7 @@ module VCR
       end
 
       EMPTY_STRING = if String.method_defined?(:force_encoding)
-        ''.force_encoding("US-ASCII")
+        String.new.force_encoding("US-ASCII")
       else
         ''
       end

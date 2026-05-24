@@ -17,14 +17,14 @@ RSpec.shared_examples_for "a header normalizer" do
   end
 
   it 'ensures header keys are serialized to yaml as raw strings' do
-    key = 'my-key'
+    key = 'my-key'.dup
     key.instance_variable_set(:@foo, 7)
     instance = with_headers(key => ['value1'])
     expect(YAML.dump(instance.headers)).to eq(YAML.dump('my-key' => ['value1']))
   end
 
   it 'ensures header values are serialized to yaml as raw strings' do
-    value = 'my-value'
+    value = 'my-value'.dup
     value.instance_variable_set(:@foo, 7)
     instance = with_headers('my-key' => [value])
     expect(YAML.dump(instance.headers)).to eq(YAML.dump('my-key' => ['my-value']))
@@ -45,7 +45,7 @@ end
 
 RSpec.shared_examples_for "a body normalizer" do
   it "ensures the body is serialized to yaml as a raw string" do
-    body = "My String"
+    body = "My String".dup
     body.instance_variable_set(:@foo, 7)
     expect(YAML.dump(instance(body).body)).to eq(YAML.dump("My String"))
   end
@@ -167,7 +167,7 @@ module VCR
       end
 
       it 'force encodes the decoded base64 string as the original encoding' do
-        string = "café"
+        string = "café".dup
         string.force_encoding("US-ASCII")
         expect(string).not_to be_valid_encoding
 
@@ -203,7 +203,7 @@ module VCR
       end
 
       it 'does not attempt to encode the string when there is no encoding given (i.e. if the cassette was recorded on ruby 1.8)' do
-        string = 'foo'
+        string = 'foo'.dup
         string.force_encoding("ISO-8859-1")
         hash['request']['body']  = { 'string' => string }
 
