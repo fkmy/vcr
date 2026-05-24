@@ -220,7 +220,7 @@ module VCR
 
         expect(Request).not_to receive(:warn)
         i = HTTPInteraction.from_hash(hash)
-        expect(i.request.body).to eq(string)
+        expect(i.request.body).to eq(string.dup.force_encoding(Encoding::BINARY))
         expect(i.request.body.bytes.to_a).to eq(string.bytes.to_a)
         expect(i.request.body.encoding).to eq(Encoding::BINARY)
       end

@@ -38,7 +38,7 @@ module VCR
           # ASCII-8BIT just means binary, so encoding to it is nonsensical
           # and yet "\u00f6".encode("ASCII-8BIT") raises an error.
           # Instead, we'll force encode it (essentially just tagging it as binary)
-          return string.force_encoding(encoding) if encoding == Encoding::BINARY
+          return string.dup.force_encoding(encoding) if encoding == Encoding::BINARY
 
           string.encode(encoding)
         rescue EncodingError => e
@@ -545,10 +545,22 @@ module VCR
       def filter!(text, replacement_text)
         text, replacement_text = text.to_s, replacement_text.to_s
         return self if [text, replacement_text].any? { |t| t.empty? }
+        ensure_mutable_strings!(self)
         filter_object!(self, text, replacement_text)
       end
 
     private
+
+      # Walk the interaction and replace any String values with a dup'd copy
+      # so that subsequent in-place mutations (e.g. gsub!) don't trigger
+      # "literal string will be frozen" warnings on Ruby 3.4+.
+      def ensure_mutable_strings!(object)
+        if object.respond_to?(:each_pair) && object.respond_to?(:[]=)
+          object.each_pair { |name, v| v.is_a?(String) ? object[name] = v.dup : ensure_mutable_strings!(v) }
+        elsif object.is_a?(Array)
+          object.each_with_index { |o, i| o.is_a?(String) ? object[i] = o.dup : ensure_mutable_strings!(o) }
+        end
+      end
 
       def filter_object!(object, text, replacement_text)
         if object.respond_to?(:gsub)
