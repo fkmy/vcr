@@ -64,7 +64,7 @@ module VCR
       extract_options
       raise_error_unless_valid_record_mode
 
-      log "Initialized with options: #{@options.inspect}"
+      log "Initialized with options: #{format_options_for_log(@options)}"
     end
 
     # Ejects the current cassette. The cassette will no longer be used.
@@ -344,6 +344,16 @@ module VCR
 
     def log_prefix
       @log_prefix ||= "[Cassette: '#{name}'] "
+    end
+
+    # Use the legacy `{:key=>val}` format (Ruby 3.4 changed Hash#inspect for symbol keys).
+    def format_options_for_log(value)
+      case value
+      when Hash
+        "{#{value.map { |k, v| "#{k.inspect}=>#{format_options_for_log(v)}" }.join(', ')}}"
+      else
+        value.inspect
+      end
     end
 
     def request_summary(request)
