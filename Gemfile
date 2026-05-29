@@ -49,5 +49,6 @@ gem "webmock"
 gem "webrick"
 gem "yard"
 
+gem "ostruct" if RUBY_VERSION >= "3.4"
 gem "irb" if RUBY_VERSION > "4"
 gem "rdoc" if RUBY_VERSION > "4"
